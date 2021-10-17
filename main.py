@@ -1,17 +1,23 @@
 import json
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
 
 with open("menu.json", "r") as read_file:
 	data = json.load(read_file)
 app = FastAPI()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @app.get('/')
-def root():
-	return {'Menu': 'Item'}
+def root() -> dict:
+	return {
+			'Nama': 'Ida Bagus Raditya A.M',
+			'NIM': 18219117, 
+			'Kelas': "K1"
+			}
 
 @app.get('/menu')
-async def get_all_menu():
-	return data
+async def get_all_menu(token: str = Depends(oauth2_scheme)):
+	return {"token" : token}
 
 @app.get('/menu/{item_id}')
 async def read_menu(item_id: int):
