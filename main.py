@@ -11,19 +11,41 @@ SECRET_KEY = "70d6e62ed2f0016722974769fcfb7907a5609b79ee590114ec170f822ab2348c"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+description = '''
+Nama: Ida Bagus Raditya Avanindra Mahaputra\n
+NIM	: 1821911\n
+UTS II3160 Teknologi Sistem Terintegrasi\n
+API Restaurant Menu adalah API yang dibuat untuk dapat mengakses, mengubah, dan menghapus 
+data menu dari sebuah restoran.\n
+User yang dapat digunakan untuk authentication:\n\n
+*username*: admin\n
+*password*: admin
+'''
+
+app = FastAPI(
+	title="Restaurant Menu API",
+	description=description,
+)
+
 users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
+	"admin":{
+		"username": "admin",
+        "full_name": "Admin",
+        "email": "admin@example.com",
+        "hashed_password": "$2b$12$en.WvoyERBYIEYHElEcTU.GarYqEbvgojwJj6L4ZmaddEqpv3KtDy",
+        "disabled": False,
+	},
+    "tugusav": {
+        "username": "tugusav",
+        "full_name": "Tugus Avanindra",
+        "email": "tugusav@example.com",
         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
         "disabled": False,
-    }
+    },
 }
 
 with open("menu.json", "r") as read_file:
 	data = json.load(read_file)
-app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class Token(BaseModel):
@@ -98,12 +120,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return user
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-
-@app.post("/token")
+# Token
+@app.post("/token", tags=["Authentication"])
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(users_db, form_data.username, form_data.password)
     if not user:
@@ -118,7 +138,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.post("/token", response_model=Token)
+@app.post("/token", response_model=Token, tags=["Authentication"])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(users_db, form_data.username, form_data.password)
     if not user:
@@ -133,26 +153,35 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get('/users/me', response_model=User)
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
+@app.get('/users/me', response_model=User, tags=["User"])
+async def get_current_user_data(current_user: User = Depends(get_current_active_user)):
 	return current_user
 
-## actual api
 
-@app.get('/')
-def root() -> dict:
+## menu api
+
+@app.get('/', tags=["Index"])
+def root():
+	description = {
+		"Description": "API Restaurant Menu adalah API yang dibuat untuk dapat mengakses, mengubah, dan menghapus data menu dari sebuah restoran. Silakan mengakses /docs untuk melihat API selengkapnya",
+		"Credit": "By Ida Bagus Raditya A.M. 18219117. Sistem dan Teknologi Informasi. Institut Teknologi Bandung"
+		}
+	return description['Description']
+
+@app.get('/creator', tags=["API Credit"])
+def who_am_i() -> dict:
 	return {
 			'Nama': 'Ida Bagus Raditya A.M',
 			'NIM': 18219117, 
 			'Kelas': "K1"
 			}
 
-@app.get('/menu')
-async def get_all_menu(token: str = Depends(oauth2_scheme)):
+@app.get('/menu', tags=["Menu"])
+async def read_all_menu(token: str = Depends(oauth2_scheme)):
 	return data
 
-@app.get('/menu/{item_id}')
-async def read_menu(item_id: int):
+@app.get('/menu/{item_id}', tags=["Menu"])
+async def read_a_menu(item_id: int, token: str = Depends(oauth2_scheme)):
 	for menu_item in data['menu']:
 		if menu_item['id'] == item_id:
 			return menu_item
@@ -160,8 +189,8 @@ async def read_menu(item_id: int):
 		status_code=404, detail=f'Item not found'
 )
 
-@app.post('/menu')
-async def post_menu(name:str):
+@app.post('/menu', tags=["Menu"])
+async def create_new_menu(name:str, token: str = Depends(oauth2_scheme)):
 	id = 1
 	if(len(data['menu']) > 0):
 		id = data['menu'][len(data['menu']) - 1]['id'] + 1 # nyari data paling akhir, dan idnya, lalu tambahkan 1
@@ -176,8 +205,8 @@ async def post_menu(name:str):
 	raise HTTPException(
 		status_code=500, detail=f'Internal server error')
 
-@app.put('/menu/{item_id}')
-async def update_menu(item_id: int, name:str):
+@app.put('/menu/{item_id}', tags=["Menu"])
+async def update_menu(item_id: int, name:str, token: str = Depends(oauth2_scheme)):
 	for menu_item in data['menu']:
 		if menu_item['id'] == item_id:
 			menu_item['name'] = name
@@ -190,8 +219,8 @@ async def update_menu(item_id: int, name:str):
 		status_code=404, detail=f'Item not found'
 )
 
-@app.delete('/menu/{item_id}')
-async def delete_menu(item_id: int, name:str):
+@app.delete('/menu/{item_id}', tags=["Menu"])
+async def delete_menu(item_id: int, token: str = Depends(oauth2_scheme)):
 	for menu_item in data['menu']:
 		if menu_item['id'] == item_id:
 			data['menu'].remove(menu_item)
