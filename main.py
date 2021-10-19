@@ -28,11 +28,11 @@ app = FastAPI(
 )
 
 users_db = {
-	"admin":{
+	"asdf":{
 		"username": "asdf",
         "full_name": "Admin",
         "email": "admin@example.com",
-        "hashed_password": "$2b$12$exoIL8YOqkt1unUhBuGkpeZ7QBeJ6O.4TFRLTcy.sQFJhG2b/kKoW",
+        "hashed_password": "$2b$12$oXcDGRnUS7IKQXwqSu4Qo.S5hqfLmwv25g0F4/bhqKLtg/Pz3eU/C",
         "disabled": False,
 	},
     "tugusav": {
