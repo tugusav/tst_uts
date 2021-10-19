@@ -18,8 +18,8 @@ UTS II3160 Teknologi Sistem Terintegrasi\n
 API Restaurant Menu adalah API yang dibuat untuk dapat mengakses, mengubah, dan menghapus 
 data menu dari sebuah restoran.\n
 User yang dapat digunakan untuk authentication:\n\n
-*username*: admin\n
-*password*: admin
+*username*: asdf\n
+*password*: asdf
 '''
 
 app = FastAPI(
@@ -29,10 +29,10 @@ app = FastAPI(
 
 users_db = {
 	"admin":{
-		"username": "admin",
+		"username": "asdf",
         "full_name": "Admin",
         "email": "admin@example.com",
-        "hashed_password": "$2b$12$en.WvoyERBYIEYHElEcTU.GarYqEbvgojwJj6L4ZmaddEqpv3KtDy",
+        "hashed_password": "$2b$12$Rw93ZTnpy5aZeNL.jml3d.sEKLdSflO95h/S0kDre0.uLTCUHOZ3a",
         "disabled": False,
 	},
     "tugusav": {
