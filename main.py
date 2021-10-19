@@ -32,7 +32,7 @@ users_db = {
 		"username": "asdf",
         "full_name": "Admin",
         "email": "admin@example.com",
-        "hashed_password": "$2b$12$Rw93ZTnpy5aZeNL.jml3d.sEKLdSflO95h/S0kDre0.uLTCUHOZ3a",
+        "hashed_password": "$2b$12$exoIL8YOqkt1unUhBuGkpeZ7QBeJ6O.4TFRLTcy.sQFJhG2b/kKoW",
         "disabled": False,
 	},
     "tugusav": {
